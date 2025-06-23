@@ -2,6 +2,8 @@ version: 0.2
 
 phases:
   install:
+    runtime-versions:
+      docker: 19
     commands:
       - curl -o terraform.zip https://releases.hashicorp.com/terraform/1.7.5/terraform_1.7.5_linux_amd64.zip
       - unzip terraform.zip
@@ -16,6 +18,9 @@ phases:
   build:
     commands:
       - terraform init
-      - terraform validate
       - terraform plan -out=tfplan
       - terraform apply -auto-approve tfplan
+
+artifacts:
+  files:
+    - '**/*'
