@@ -1,41 +1,21 @@
 version: 0.2
 
-env:
-  variables:
-    TF_VAR_aws_region: "us-east-1"        # or your desired region
-    TF_VAR_db_username: "admin"
-    TF_VAR_db_password: "MySecurePassword123"
-    TF_VAR_db_name: "MySQLDatabase"
-
 phases:
   install:
-    runtime-versions:
-      python: 3.12
     commands:
-      - echo Installing Terraform...
-      - curl -o terraform.zip https://releases.hashicorp.com/terraform/1.8.2/terraform_1.8.2_linux_amd64.zip
+      - curl -o terraform.zip https://releases.hashicorp.com/terraform/1.7.5/terraform_1.7.5_linux_amd64.zip
       - unzip terraform.zip
       - mv terraform /usr/local/bin/
       - terraform -version
 
   pre_build:
     commands:
-      - echo Logging in to AWS ECR...
-      - aws --version
-      - aws sts get-caller-identity
-      - echo Initializing Terraform...
-      - terraform init
+      - echo Logging into ECR...
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 381492221394.dkr.ecr.ap-south-1.amazonaws.com
 
   build:
     commands:
-      - echo Planning infrastructure...
+      - terraform init
+      - terraform validate
       - terraform plan -out=tfplan
-
-  post_build:
-    commands:
-      - echo Applying Terraform changes...
       - terraform apply -auto-approve tfplan
-
-artifacts:
-  files:
-    - "**/*"
