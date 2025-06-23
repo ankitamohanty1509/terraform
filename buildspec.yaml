@@ -3,8 +3,12 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      docker: 19
+      python: 3.11
     commands:
+      - echo "Installing Docker manually..."
+      - yum update -y
+      - amazon-linux-extras install docker -y
+      - service docker start
       - curl -o terraform.zip https://releases.hashicorp.com/terraform/1.7.5/terraform_1.7.5_linux_amd64.zip
       - unzip terraform.zip
       - mv terraform /usr/local/bin/
@@ -12,11 +16,12 @@ phases:
 
   pre_build:
     commands:
-      - echo Logging into ECR...
+      - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 381492221394.dkr.ecr.ap-south-1.amazonaws.com
 
   build:
     commands:
+      - echo "Running Terraform commands..."
       - terraform init
       - terraform plan -out=tfplan
       - terraform apply -auto-approve tfplan
